@@ -40,25 +40,31 @@ jobs:
       - name: Deploy to NAS
         env:
           SSH_KEY: ${{ secrets.NAS_SSH_KEY }}
+          CF_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
         run: |
-          # Write SSH key to temp file
           echo "$SSH_KEY" > /tmp/deploy_key
           chmod 600 /tmp/deploy_key
 
-          # SSH through Cloudflare Tunnel
+          # Create cloudflared config with service token
+          mkdir -p ~/.cloudflared
+          cat > ~/.cloudflared/config.yml << EOF
+          tunnel-token: ""
+          EOF
+
           ssh -i /tmp/deploy_key \
             -o StrictHostKeyChecking=no \
-            -o ProxyCommand="cloudflared access ssh --hostname ssh.marcuslchong.com" \
-            ${{ secrets.NAS_USER }}@ssh.marcuslchong.com \
-            "set -e
-            echo '→ Pulling latest code...'
+            -o ProxyCommand="cloudflared access ssh --hostname ssh.marcuslchong.com --id $CF_ID --secret $CF_SECRET" \
+            ${{ secrets.NAS_USER }}@ssh.marcuslchong.com << 'ENDSSH'
+            set -e
+            echo "→ Pulling latest code..."
             cd /nfs/my-portfolio
             git pull origin main
-            echo '→ Rebuilding Docker image...'
+            echo "→ Rebuilding Docker image..."
             docker compose up -d --build
-            echo '→ Cleaning up old images...'
+            echo "→ Cleaning up old images..."
             docker image prune -f
-            echo '✓ Deploy complete'"
+            echo "✓ Deploy complete"
+          ENDSSH
 
-          # Clean up key
           rm /tmp/deploy_key
