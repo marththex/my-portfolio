@@ -46,13 +46,12 @@ jobs:
           echo "$SSH_KEY" > /tmp/deploy_key
           chmod 600 /tmp/deploy_key
 
-          # Verify token lengths
           echo "Token ID length: ${#TUNNEL_SERVICE_TOKEN_ID}"
           echo "Token Secret length: ${#TUNNEL_SERVICE_TOKEN_SECRET}"
 
           ssh -i /tmp/deploy_key \
             -o StrictHostKeyChecking=no \
-            -o ProxyCommand="cloudflared access ssh --hostname ssh.marcuslchong.com" \
+            -o ProxyCommand="TUNNEL_SERVICE_TOKEN_ID=$TUNNEL_SERVICE_TOKEN_ID TUNNEL_SERVICE_TOKEN_SECRET=$TUNNEL_SERVICE_TOKEN_SECRET cloudflared access ssh --hostname ssh.marcuslchong.com" \
             ${{ secrets.NAS_USER }}@ssh.marcuslchong.com << 'ENDSSH'
             set -e
             echo "→ Pulling latest code..."
