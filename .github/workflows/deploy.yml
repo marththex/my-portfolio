@@ -3,7 +3,8 @@ name: Deploy to NAS
 on:
   push:
     branches:
-      - main   # triggers on every push to main
+      - main
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -11,30 +12,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Check out the code so we can lint/type-check before deploying
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2. Set up Node
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
 
-      # 3. Install dependencies
       - name: Install dependencies
         run: npm ci
 
-      # 4. Type check — catches TS errors before they reach production
+      # Use locally installed tsc from node_modules, not npx
       - name: Type check
-        run: npx tsc --noEmit
+        run: npm run typecheck
 
-      # 5. Build — confirms Astro can produce a valid static output
       - name: Build
         run: npm run build
 
-      # 6. Deploy to NAS via Cloudflare Tunnel SSH
       - name: Deploy to NAS
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -48,15 +44,11 @@ jobs:
           proxy_key: ${{ secrets.NAS_SSH_KEY }}
           script: |
             set -e
-
             echo "→ Pulling latest code..."
             cd /nfs/my-portfolio
             git pull origin main
-
             echo "→ Rebuilding Docker image..."
             docker compose up -d --build
-
             echo "→ Cleaning up old images..."
             docker image prune -f
-
             echo "✓ Deploy complete"
