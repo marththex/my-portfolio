@@ -40,23 +40,19 @@ jobs:
       - name: Deploy to NAS
         env:
           SSH_KEY: ${{ secrets.NAS_SSH_KEY }}
-          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
-          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+          TUNNEL_SERVICE_TOKEN_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          TUNNEL_SERVICE_TOKEN_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
         run: |
           echo "$SSH_KEY" > /tmp/deploy_key
           chmod 600 /tmp/deploy_key
 
-          # Test cloudflared access first
-          echo "Testing cloudflared access..."
-          cloudflared access ssh --hostname ssh.marcuslchong.com --help 2>&1 || true
+          # Verify token lengths
+          echo "Token ID length: ${#TUNNEL_SERVICE_TOKEN_ID}"
+          echo "Token Secret length: ${#TUNNEL_SERVICE_TOKEN_SECRET}"
 
-          # Verify env vars are set (show length only, not value)
-          echo "CF_ACCESS_CLIENT_ID length: ${#CF_ACCESS_CLIENT_ID}"
-          echo "CF_ACCESS_CLIENT_SECRET length: ${#CF_ACCESS_CLIENT_SECRET}"
-
-          ssh -v -i /tmp/deploy_key \
+          ssh -i /tmp/deploy_key \
             -o StrictHostKeyChecking=no \
-            -o ProxyCommand="cloudflared access ssh --hostname ssh.marcuslchong.com --loglevel debug" \
+            -o ProxyCommand="cloudflared access ssh --hostname ssh.marcuslchong.com" \
             ${{ secrets.NAS_USER }}@ssh.marcuslchong.com << 'ENDSSH'
             set -e
             echo "→ Pulling latest code..."
