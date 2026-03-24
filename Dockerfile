@@ -3,9 +3,12 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files and install dependencies
+# Copy package files
 COPY package*.json ./
-RUN npm ci
+
+# Delete lock file and reinstall fresh for Alpine (musl) platform
+# This fixes the @rollup/rollup-linux-x64-musl optional dependency issue
+RUN rm -f package-lock.json && npm install --include=optional
 
 # Copy source and build
 COPY . .
