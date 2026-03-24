@@ -22,8 +22,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          rm -rf node_modules
-          npm install
+          rm -rf node_modules package-lock.json
+          npm install --include=optional
 
       # Use locally installed tsc from node_modules, not npx
       - name: Type check
