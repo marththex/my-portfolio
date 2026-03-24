@@ -232,6 +232,8 @@ const yearsExp = new Date().getFullYear() - startYear;
     object-fit: cover;
     filter: grayscale(20%);
     transition: filter 0.4s;
+    /* Fallback if image file is missing */
+    background: var(--bg-3);
   }
 
   .hero-image:hover { filter: grayscale(0%); }

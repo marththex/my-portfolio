@@ -20,6 +20,7 @@ const { items } = Astro.props;
     <h2 class="section-title testimonials-title">What colleagues say</h2>
   </div>
 
+  <!-- Viewport sits OUTSIDE container so cards can bleed edge-to-edge -->
   <div class="carousel-viewport" id="carouselViewport">
     <div class="carousel-track" id="carouselTrack">
       {items.map((item) => (
@@ -68,16 +69,20 @@ const { items } = Astro.props;
   .carousel-viewport {
     overflow: hidden;
     padding: 1rem 0 2rem;
+    touch-action: pan-y;
+    width: 100%;
   }
 
   .carousel-track {
     display: flex;
     gap: 1.5rem;
     transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    /* GPU layer forces all cards to paint immediately — fixes lazy rendering */
     will-change: transform;
     cursor: grab;
     user-select: none;
+    touch-action: pan-y;
+    /* Left padding aligns first card with page container */
+    padding-left: max(1.25rem, calc((100vw - min(100vw, 1100px)) / 2 + 2rem));
   }
 
   .carousel-track.dragging {
@@ -85,16 +90,16 @@ const { items } = Astro.props;
     transition: none;
   }
 
+  /* Card widths are all viewport-relative so % of track doesn't confuse things */
   .carousel-card {
-    /* 3 cards visible: full width minus 2 gaps, divided by 3 */
-    flex: 0 0 calc((100% - 3rem) / 3);
+    flex: 0 0 calc((min(100vw, 1100px) - 4rem - 3rem) / 3);
+    min-width: 0;
     background: var(--bg-2);
     border: 1px solid var(--border);
     padding: 2rem;
     display: flex;
     flex-direction: column;
     transition: border-color 0.3s;
-    /* Explicitly opt out of any paint containment */
     content-visibility: visible;
     contain: none;
   }
@@ -162,6 +167,7 @@ const { items } = Astro.props;
   .carousel-controls {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 1.5rem;
     margin-top: 0.5rem;
   }
@@ -191,7 +197,7 @@ const { items } = Astro.props;
     gap: 0.4rem;
     align-items: center;
     flex-wrap: wrap;
-    flex: 1;
+    justify-content: center;
   }
 
   .dot {
@@ -211,56 +217,58 @@ const { items } = Astro.props;
     transform: scale(1.4);
   }
 
-  /* 2 cards on tablet, 1 on mobile */
+  /* Tablet: 2 cards */
   @media (max-width: 900px) {
-    .carousel-card { flex: 0 0 calc((100% - 1.5rem) / 2); }
+    .carousel-card {
+      flex: 0 0 calc((100vw - 2.5rem - 1.5rem) / 2);
+    }
   }
+
+  /* Mobile: 1 card, centered with equal padding on both sides */
   @media (max-width: 580px) {
-    .carousel-card { flex: 0 0 85vw; }
+    .carousel-viewport {
+      padding-left: 1.25rem;
+      padding-right: 1.25rem;
+    }
+    .carousel-track {
+      padding-left: 0;
+    }
+    .carousel-card {
+      flex: 0 0 calc(100vw - 2.5rem);
+    }
   }
 </style>
 
 <script>
-  const viewport = document.getElementById('carouselViewport') as HTMLElement;
-  const track    = document.getElementById('carouselTrack')    as HTMLElement;
-  const prevBtn  = document.getElementById('prevBtn')          as HTMLButtonElement;
-  const nextBtn  = document.getElementById('nextBtn')          as HTMLButtonElement;
-  const dots     = Array.from(document.querySelectorAll<HTMLButtonElement>('.dot'));
-
-  // Original cards (before cloning)
+  const viewport  = document.getElementById('carouselViewport') as HTMLElement;
+  const track     = document.getElementById('carouselTrack')    as HTMLElement;
+  const prevBtn   = document.getElementById('prevBtn')          as HTMLButtonElement;
+  const nextBtn   = document.getElementById('nextBtn')          as HTMLButtonElement;
+  const dots      = Array.from(document.querySelectorAll<HTMLButtonElement>('.dot'));
   const origCards = Array.from(track.querySelectorAll<HTMLElement>('.carousel-card'));
   const total     = origCards.length;
-  const CLONES    = 3; // clone 3 from each end to cover all viewport sizes
+  const CLONES    = 3;
 
-  // ── Build clones for infinite loop ──────────────────────────────────────────
-  // Prepend clones of the LAST 3 cards
+  // ── Clone for infinite loop ──────────────────────────────────────────────────
   for (let i = CLONES - 1; i >= 0; i--) {
     const clone = origCards[total - CLONES + i].cloneNode(true) as HTMLElement;
     clone.setAttribute('aria-hidden', 'true');
     track.insertBefore(clone, track.firstChild);
   }
-  // Append clones of the FIRST 3 cards
   for (let i = 0; i < CLONES; i++) {
     const clone = origCards[i].cloneNode(true) as HTMLElement;
     clone.setAttribute('aria-hidden', 'true');
     track.appendChild(clone);
   }
 
-  // After cloning, real card[0] is at DOM position CLONES
-  let current      = CLONES; // DOM index of currently "first visible" card
-  let logicalIndex = 0;      // which original card is the leftmost visible one
+  let current      = CLONES;
+  let logicalIndex = 0;
 
-  // ── Helpers ──────────────────────────────────────────────────────────────────
-
-  function visibleCount(): number {
-    if (window.innerWidth <= 580) return 1;
-    if (window.innerWidth <= 900) return 2;
-    return 3;
-  }
-
+  // ── Card width — read from DOM so it matches CSS exactly ────────────────────
   function getCardWidth(): number {
     const c = track.children[0] as HTMLElement;
-    return c.offsetWidth + 24; // 24px = 1.5rem gap
+    // offsetWidth + gap (1.5rem = 24px)
+    return c.offsetWidth + 24;
   }
 
   function setTranslate(x: number, animated: boolean): void {
@@ -271,24 +279,20 @@ const { items } = Astro.props;
   }
 
   function updateDots(logical: number): void {
-    const wrapped = ((logical % total) + total) % total;
-    dots.forEach((d, i) => d.classList.toggle('active', i === wrapped));
+    const w = ((logical % total) + total) % total;
+    dots.forEach((d, i) => d.classList.toggle('active', i === w));
   }
 
-  // Init position (no animation)
+  // Init
   setTranslate(getCardWidth() * current, false);
   updateDots(logicalIndex);
 
-  // ── Infinite warp on transition end ──────────────────────────────────────────
+  // ── Infinite warp ────────────────────────────────────────────────────────────
   track.addEventListener('transitionend', () => {
-    const domLen = track.children.length; // total + 2*CLONES
-
     if (current >= total + CLONES) {
-      // Past tail clones → warp to real start
       current -= total;
       setTranslate(getCardWidth() * current, false);
     } else if (current < CLONES) {
-      // Before head clones → warp to real end
       current += total;
       setTranslate(getCardWidth() * current, false);
     }
@@ -309,45 +313,62 @@ const { items } = Astro.props;
   nextBtn.addEventListener('click', next);
   dots.forEach((dot, i) => dot.addEventListener('click', () => goTo(i + CLONES)));
 
-  // ── Drag / swipe (touch + mouse) ─────────────────────────────────────────────
+  // ── Drag / swipe ─────────────────────────────────────────────────────────────
   let dragStartX      = 0;
   let dragStartOffset = 0;
   let isDragging      = false;
+  let touchStartY     = 0;
+  let isHorizontal    = false;
 
-  function onDragStart(x: number): void {
+  function onDragStart(x: number, y = 0): void {
     isDragging      = true;
+    isHorizontal    = false;
     dragStartX      = x;
+    touchStartY     = y;
     dragStartOffset = getCardWidth() * current;
     track.classList.add('dragging');
   }
 
-  function onDragMove(x: number): void {
+  function onDragMove(x: number, y = 0): void {
     if (!isDragging) return;
-    setTranslate(dragStartOffset + (dragStartX - x), false);
+    const dx = Math.abs(x - dragStartX);
+    const dy = Math.abs(y - touchStartY);
+    if (!isHorizontal && (dx > 5 || dy > 5)) {
+      isHorizontal = dx >= dy;
+    }
+    if (isHorizontal) {
+      setTranslate(dragStartOffset + (dragStartX - x), false);
+    }
   }
 
   function onDragEnd(x: number): void {
     if (!isDragging) return;
     isDragging = false;
     track.classList.remove('dragging');
-    const delta = dragStartX - x;
-    if (Math.abs(delta) > 60) {
-      delta > 0 ? next() : prev();
-    } else {
-      setTranslate(getCardWidth() * current, true); // snap back
+    if (isHorizontal) {
+      const delta = dragStartX - x;
+      Math.abs(delta) > 60 ? (delta > 0 ? next() : prev()) : setTranslate(getCardWidth() * current, true);
     }
   }
 
-  // Touch events
-  track.addEventListener('touchstart',  (e: TouchEvent) => onDragStart(e.touches[0].clientX),         { passive: true });
-  track.addEventListener('touchmove',   (e: TouchEvent) => onDragMove(e.touches[0].clientX),           { passive: true });
+  // Touch
+  track.addEventListener('touchstart',  (e: TouchEvent) => onDragStart(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
+  track.addEventListener('touchmove',   (e: TouchEvent) => {
+    const dx = Math.abs(e.touches[0].clientX - dragStartX);
+    const dy = Math.abs(e.touches[0].clientY - touchStartY);
+    if (!isHorizontal && (dx > 5 || dy > 5)) isHorizontal = dx >= dy;
+    if (isHorizontal) {
+      e.preventDefault();
+      onDragMove(e.touches[0].clientX, e.touches[0].clientY);
+    }
+  }, { passive: false });
   track.addEventListener('touchend',    (e: TouchEvent) => onDragEnd(e.changedTouches[0].clientX));
 
-  // Mouse drag
+  // Mouse
   track.addEventListener('mousedown',  (e: MouseEvent) => onDragStart(e.clientX));
   window.addEventListener('mousemove', (e: MouseEvent) => onDragMove(e.clientX));
   window.addEventListener('mouseup',   (e: MouseEvent) => onDragEnd(e.clientX));
 
-  // Recalculate on resize
+  // Resize
   window.addEventListener('resize', () => setTranslate(getCardWidth() * current, false));
 </script>
