@@ -6,23 +6,10 @@ services:
       dockerfile: Dockerfile
     container_name: portfolio
     restart: unless-stopped
-
-    # Expose port 3000 on the HOST → port 80 inside the container
-    # Nginx Proxy Manager will forward traffic to host port 3000
     ports:
       - "3000:80"
-
-    # Named volume so the built files persist and can be inspected
-    volumes:
-      - portfolio_static:/usr/share/nginx/html
-
     networks:
       - proxy
-
-# ── Volume ────────────────────────────────────────────────────────────────────
-volumes:
-  portfolio_static:
-    name: portfolio_static
 
 # ── Network ───────────────────────────────────────────────────────────────────
 networks:
