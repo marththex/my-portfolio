@@ -46,15 +46,9 @@ jobs:
           echo "$SSH_KEY" > /tmp/deploy_key
           chmod 600 /tmp/deploy_key
 
-          # Create cloudflared config with service token
-          mkdir -p ~/.cloudflared
-          cat > ~/.cloudflared/config.yml << EOF
-          tunnel-token: ""
-          EOF
-
           ssh -i /tmp/deploy_key \
             -o StrictHostKeyChecking=no \
-            -o ProxyCommand="cloudflared access ssh --hostname ssh.marcuslchong.com --id $CF_ID --secret $CF_SECRET" \
+            -o ProxyCommand="cloudflared access ssh --hostname ssh.marcuslchong.com --service-token-id $CF_ID --service-token-secret $CF_SECRET" \
             ${{ secrets.NAS_USER }}@ssh.marcuslchong.com << 'ENDSSH'
             set -e
             echo "→ Pulling latest code..."
