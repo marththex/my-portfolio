@@ -32,24 +32,33 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Install cloudflared
+        run: |
+          curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb -o cloudflared.deb
+          sudo dpkg -i cloudflared.deb
+
       - name: Deploy to NAS
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.NAS_HOST }}
-          username: ${{ secrets.NAS_USER }}
-          key: ${{ secrets.NAS_SSH_KEY }}
-          port: ${{ secrets.NAS_PORT }}
-          proxy_host: ssh.marcuslchong.com
-          proxy_port: 22
-          proxy_username: ${{ secrets.NAS_USER }}
-          proxy_key: ${{ secrets.NAS_SSH_KEY }}
-          script: |
-            set -e
-            echo "→ Pulling latest code..."
+        env:
+          SSH_KEY: ${{ secrets.NAS_SSH_KEY }}
+        run: |
+          # Write SSH key to temp file
+          echo "$SSH_KEY" > /tmp/deploy_key
+          chmod 600 /tmp/deploy_key
+
+          # SSH through Cloudflare Tunnel
+          ssh -i /tmp/deploy_key \
+            -o StrictHostKeyChecking=no \
+            -o ProxyCommand="cloudflared access ssh --hostname ssh.marcuslchong.com" \
+            ${{ secrets.NAS_USER }}@ssh.marcuslchong.com \
+            "set -e
+            echo '→ Pulling latest code...'
             cd /nfs/my-portfolio
             git pull origin main
-            echo "→ Rebuilding Docker image..."
+            echo '→ Rebuilding Docker image...'
             docker compose up -d --build
-            echo "→ Cleaning up old images..."
+            echo '→ Cleaning up old images...'
             docker image prune -f
-            echo "✓ Deploy complete"
+            echo '✓ Deploy complete'"
+
+          # Clean up key
+          rm /tmp/deploy_key
