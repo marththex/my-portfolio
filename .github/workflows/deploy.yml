@@ -40,15 +40,15 @@ jobs:
       - name: Deploy to NAS
         env:
           SSH_KEY: ${{ secrets.NAS_SSH_KEY }}
-          CF_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
-          CF_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
         run: |
           echo "$SSH_KEY" > /tmp/deploy_key
           chmod 600 /tmp/deploy_key
 
           ssh -i /tmp/deploy_key \
             -o StrictHostKeyChecking=no \
-            -o ProxyCommand="cloudflared access ssh --hostname ssh.marcuslchong.com --service-token-id $CF_ID --service-token-secret $CF_SECRET" \
+            -o ProxyCommand="cloudflared access ssh --hostname ssh.marcuslchong.com" \
             ${{ secrets.NAS_USER }}@ssh.marcuslchong.com << 'ENDSSH'
             set -e
             echo "→ Pulling latest code..."
