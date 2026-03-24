@@ -40,25 +40,14 @@ jobs:
       - name: Deploy to NAS
         env:
           SSH_KEY: ${{ secrets.NAS_SSH_KEY }}
-          TUNNEL_SERVICE_TOKEN_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
-          TUNNEL_SERVICE_TOKEN_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
         run: |
           echo "$SSH_KEY" > /tmp/deploy_key
           chmod 600 /tmp/deploy_key
 
-          # Write cloudflared wrapper using TCP (bypasses Access JWT for SSH)
-          cat > /tmp/cf-proxy.sh << EOF
-          #!/bin/sh
-          export TUNNEL_SERVICE_TOKEN_ID="$TUNNEL_SERVICE_TOKEN_ID"
-          export TUNNEL_SERVICE_TOKEN_SECRET="$TUNNEL_SERVICE_TOKEN_SECRET"
-          exec cloudflared access tcp --hostname ssh.marcuslchong.com --url localhost:2222
-          EOF
-          chmod +x /tmp/cf-proxy.sh
-
           ssh -i /tmp/deploy_key \
             -o StrictHostKeyChecking=no \
-            -o ProxyCommand="/tmp/cf-proxy.sh" \
-            -p 2222 \
+            -o ConnectTimeout=30 \
+            -o ProxyCommand="cloudflared access tcp --hostname ssh.marcuslchong.com" \
             ${{ secrets.NAS_USER }}@ssh.marcuslchong.com << 'ENDSSH'
           set -e
           cd /nfs/my-portfolio
@@ -68,4 +57,4 @@ jobs:
           echo "✓ Deploy complete"
           ENDSSH
 
-          rm /tmp/deploy_key /tmp/cf-proxy.sh
+          rm /tmp/deploy_key
