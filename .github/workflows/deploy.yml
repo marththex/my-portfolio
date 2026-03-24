@@ -46,31 +46,26 @@ jobs:
           echo "$SSH_KEY" > /tmp/deploy_key
           chmod 600 /tmp/deploy_key
 
-          # Write cloudflared wrapper script with tokens baked in
+          # Write cloudflared wrapper using TCP (bypasses Access JWT for SSH)
           cat > /tmp/cf-proxy.sh << EOF
           #!/bin/sh
           export TUNNEL_SERVICE_TOKEN_ID="$TUNNEL_SERVICE_TOKEN_ID"
           export TUNNEL_SERVICE_TOKEN_SECRET="$TUNNEL_SERVICE_TOKEN_SECRET"
-          exec cloudflared access ssh --hostname ssh.marcuslchong.com
+          exec cloudflared access tcp --hostname ssh.marcuslchong.com --url localhost:2222
           EOF
           chmod +x /tmp/cf-proxy.sh
-
-          echo "Token ID length: ${#TUNNEL_SERVICE_TOKEN_ID}"
-          echo "Token Secret length: ${#TUNNEL_SERVICE_TOKEN_SECRET}"
 
           ssh -i /tmp/deploy_key \
             -o StrictHostKeyChecking=no \
             -o ProxyCommand="/tmp/cf-proxy.sh" \
+            -p 2222 \
             ${{ secrets.NAS_USER }}@ssh.marcuslchong.com << 'ENDSSH'
-            set -e
-            echo "→ Pulling latest code..."
-            cd /nfs/my-portfolio
-            git pull origin main
-            echo "→ Rebuilding Docker image..."
-            docker compose up -d --build
-            echo "→ Cleaning up old images..."
-            docker image prune -f
-            echo "✓ Deploy complete"
+          set -e
+          cd /nfs/my-portfolio
+          git pull origin main
+          docker compose up -d --build
+          docker image prune -f
+          echo "✓ Deploy complete"
           ENDSSH
 
           rm /tmp/deploy_key /tmp/cf-proxy.sh
