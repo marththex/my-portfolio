@@ -22,7 +22,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       # Use locally installed tsc from node_modules, not npx
       - name: Type check
