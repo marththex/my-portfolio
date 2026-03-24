@@ -6,33 +6,27 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Delete lock file and reinstall fresh for Alpine (musl) platform
-# This fixes the @rollup/rollup-linux-x64-musl optional dependency issue
+# Fresh install for Alpine (musl) platform
 RUN rm -f package-lock.json && npm install --include=optional
 
 # Copy source and build
 COPY . .
 RUN npm run build
-# Output is now in /app/dist
 
-# ── Stage 2: Serve ────────────────────────────────────────────────────────────
-FROM nginx:alpine AS final
+# ── Stage 2: Run ──────────────────────────────────────────────────────────────
+FROM node:22-alpine AS final
 
-# Remove default nginx page
-RUN rm -rf /usr/share/nginx/html/*
+WORKDIR /app
 
-# Copy built static files from builder stage into the nginx html directory
-COPY --from=builder /app/dist /usr/share/nginx/html
+# Copy built output and node_modules
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
 
-# Fix permissions — nginx runs as the 'nginx' user (uid 101)
-# Directories need execute (755), files need read (644)
-RUN chown -R nginx:nginx /usr/share/nginx/html \
-    && find /usr/share/nginx/html -type d -exec chmod 755 {} \; \
-    && find /usr/share/nginx/html -type f -exec chmod 644 {} \;
+# Set environment variables
+ENV HOST=0.0.0.0
+ENV PORT=4321
 
-# Copy our custom nginx config
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+EXPOSE 4321
 
-EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["node", "./dist/server/entry.mjs"]

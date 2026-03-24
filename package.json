@@ -14,7 +14,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "astro": "^4.16.0"
+    "astro": "^6.0.0",
+    "@astrojs/node": "^9.0.0"
   },
   "devDependencies": {
     "typescript": "^5.0.0"
