@@ -1,0 +1,353 @@
+---
+export interface Testimonial {
+  quote: string;
+  name: string;
+  role: string;
+  company: string;
+  initials: string;
+}
+
+interface Props {
+  items: Testimonial[];
+}
+
+const { items } = Astro.props;
+---
+
+<section class="section" id="testimonials">
+  <div class="container">
+    <p class="section-label">Testimonials</p>
+    <h2 class="section-title testimonials-title">What colleagues say</h2>
+  </div>
+
+  <div class="carousel-viewport" id="carouselViewport">
+    <div class="carousel-track" id="carouselTrack">
+      {items.map((item) => (
+        <div class="carousel-card">
+          <div class="card-quote-mark">"</div>
+          <p class="card-quote">{item.quote}</p>
+          <div class="card-author">
+            <div class="author-avatar">{item.initials}</div>
+            <div class="author-info">
+              <p class="author-name">{item.name}</p>
+              <p class="author-role">{item.role} · {item.company}</p>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="carousel-controls">
+      <button class="carousel-btn" id="prevBtn" aria-label="Previous">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 5l-7 7 7 7"/>
+        </svg>
+      </button>
+      <div class="carousel-dots" id="carouselDots">
+        {items.map((_, i) => (
+          <button class={`dot ${i === 0 ? 'active' : ''}`} data-i={i} aria-label={`Go to ${i + 1}`}></button>
+        ))}
+      </div>
+      <button class="carousel-btn" id="nextBtn" aria-label="Next">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<style>
+  .testimonials-title {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+  }
+
+  .carousel-viewport {
+    overflow: hidden;
+    padding: 1rem 0 2rem;
+  }
+
+  .carousel-track {
+    display: flex;
+    gap: 1.5rem;
+    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    /* GPU layer forces all cards to paint immediately — fixes lazy rendering */
+    will-change: transform;
+    cursor: grab;
+    user-select: none;
+  }
+
+  .carousel-track.dragging {
+    cursor: grabbing;
+    transition: none;
+  }
+
+  .carousel-card {
+    /* 3 cards visible: full width minus 2 gaps, divided by 3 */
+    flex: 0 0 calc((100% - 3rem) / 3);
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    transition: border-color 0.3s;
+    /* Explicitly opt out of any paint containment */
+    content-visibility: visible;
+    contain: none;
+  }
+
+  .carousel-card:hover { border-color: var(--accent); }
+
+  .card-quote-mark {
+    font-family: var(--font-body);
+    font-size: 4rem;
+    line-height: 0.5;
+    color: var(--accent);
+    opacity: 0.4;
+    margin-bottom: 1rem;
+    font-style: italic;
+    flex-shrink: 0;
+  }
+
+  .card-quote {
+    color: var(--text);
+    font-size: 0.95rem;
+    line-height: 1.75;
+    font-style: italic;
+    margin-bottom: 1.5rem;
+    flex: 1;
+  }
+
+  .card-author {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .author-avatar {
+    width: 40px;
+    height: 40px;
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .author-name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--text);
+  }
+
+  .author-role {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--text-3);
+    margin-top: 0.15rem;
+  }
+
+  .carousel-controls {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .carousel-btn {
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--border);
+    background: var(--bg-2);
+    color: var(--text-2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+    flex-shrink: 0;
+  }
+
+  .carousel-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--bg-3);
+  }
+
+  .carousel-dots {
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+    flex-wrap: wrap;
+    flex: 1;
+  }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--border);
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+    padding: 0;
+    flex-shrink: 0;
+  }
+
+  .dot.active {
+    background: var(--accent);
+    transform: scale(1.4);
+  }
+
+  /* 2 cards on tablet, 1 on mobile */
+  @media (max-width: 900px) {
+    .carousel-card { flex: 0 0 calc((100% - 1.5rem) / 2); }
+  }
+  @media (max-width: 580px) {
+    .carousel-card { flex: 0 0 85vw; }
+  }
+</style>
+
+<script>
+  const viewport = document.getElementById('carouselViewport') as HTMLElement;
+  const track    = document.getElementById('carouselTrack')    as HTMLElement;
+  const prevBtn  = document.getElementById('prevBtn')          as HTMLButtonElement;
+  const nextBtn  = document.getElementById('nextBtn')          as HTMLButtonElement;
+  const dots     = Array.from(document.querySelectorAll<HTMLButtonElement>('.dot'));
+
+  // Original cards (before cloning)
+  const origCards = Array.from(track.querySelectorAll<HTMLElement>('.carousel-card'));
+  const total     = origCards.length;
+  const CLONES    = 3; // clone 3 from each end to cover all viewport sizes
+
+  // ── Build clones for infinite loop ──────────────────────────────────────────
+  // Prepend clones of the LAST 3 cards
+  for (let i = CLONES - 1; i >= 0; i--) {
+    const clone = origCards[total - CLONES + i].cloneNode(true) as HTMLElement;
+    clone.setAttribute('aria-hidden', 'true');
+    track.insertBefore(clone, track.firstChild);
+  }
+  // Append clones of the FIRST 3 cards
+  for (let i = 0; i < CLONES; i++) {
+    const clone = origCards[i].cloneNode(true) as HTMLElement;
+    clone.setAttribute('aria-hidden', 'true');
+    track.appendChild(clone);
+  }
+
+  // After cloning, real card[0] is at DOM position CLONES
+  let current      = CLONES; // DOM index of currently "first visible" card
+  let logicalIndex = 0;      // which original card is the leftmost visible one
+
+  // ── Helpers ──────────────────────────────────────────────────────────────────
+
+  function visibleCount(): number {
+    if (window.innerWidth <= 580) return 1;
+    if (window.innerWidth <= 900) return 2;
+    return 3;
+  }
+
+  function getCardWidth(): number {
+    const c = track.children[0] as HTMLElement;
+    return c.offsetWidth + 24; // 24px = 1.5rem gap
+  }
+
+  function setTranslate(x: number, animated: boolean): void {
+    track.style.transition = animated
+      ? 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+      : 'none';
+    track.style.transform = `translateX(-${x}px)`;
+  }
+
+  function updateDots(logical: number): void {
+    const wrapped = ((logical % total) + total) % total;
+    dots.forEach((d, i) => d.classList.toggle('active', i === wrapped));
+  }
+
+  // Init position (no animation)
+  setTranslate(getCardWidth() * current, false);
+  updateDots(logicalIndex);
+
+  // ── Infinite warp on transition end ──────────────────────────────────────────
+  track.addEventListener('transitionend', () => {
+    const domLen = track.children.length; // total + 2*CLONES
+
+    if (current >= total + CLONES) {
+      // Past tail clones → warp to real start
+      current -= total;
+      setTranslate(getCardWidth() * current, false);
+    } else if (current < CLONES) {
+      // Before head clones → warp to real end
+      current += total;
+      setTranslate(getCardWidth() * current, false);
+    }
+  });
+
+  // ── Navigate ─────────────────────────────────────────────────────────────────
+  function goTo(domIndex: number): void {
+    current      = domIndex;
+    logicalIndex = ((domIndex - CLONES) % total + total) % total;
+    setTranslate(getCardWidth() * current, true);
+    updateDots(logicalIndex);
+  }
+
+  const next = () => goTo(current + 1);
+  const prev = () => goTo(current - 1);
+
+  prevBtn.addEventListener('click', prev);
+  nextBtn.addEventListener('click', next);
+  dots.forEach((dot, i) => dot.addEventListener('click', () => goTo(i + CLONES)));
+
+  // ── Drag / swipe (touch + mouse) ─────────────────────────────────────────────
+  let dragStartX      = 0;
+  let dragStartOffset = 0;
+  let isDragging      = false;
+
+  function onDragStart(x: number): void {
+    isDragging      = true;
+    dragStartX      = x;
+    dragStartOffset = getCardWidth() * current;
+    track.classList.add('dragging');
+  }
+
+  function onDragMove(x: number): void {
+    if (!isDragging) return;
+    setTranslate(dragStartOffset + (dragStartX - x), false);
+  }
+
+  function onDragEnd(x: number): void {
+    if (!isDragging) return;
+    isDragging = false;
+    track.classList.remove('dragging');
+    const delta = dragStartX - x;
+    if (Math.abs(delta) > 60) {
+      delta > 0 ? next() : prev();
+    } else {
+      setTranslate(getCardWidth() * current, true); // snap back
+    }
+  }
+
+  // Touch events
+  track.addEventListener('touchstart',  (e: TouchEvent) => onDragStart(e.touches[0].clientX),         { passive: true });
+  track.addEventListener('touchmove',   (e: TouchEvent) => onDragMove(e.touches[0].clientX),           { passive: true });
+  track.addEventListener('touchend',    (e: TouchEvent) => onDragEnd(e.changedTouches[0].clientX));
+
+  // Mouse drag
+  track.addEventListener('mousedown',  (e: MouseEvent) => onDragStart(e.clientX));
+  window.addEventListener('mousemove', (e: MouseEvent) => onDragMove(e.clientX));
+  window.addEventListener('mouseup',   (e: MouseEvent) => onDragEnd(e.clientX));
+
+  // Recalculate on resize
+  window.addEventListener('resize', () => setTranslate(getCardWidth() * current, false));
+</script>

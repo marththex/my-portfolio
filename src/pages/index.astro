@@ -1,0 +1,192 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import About from '../components/About.astro';
+import Experience from '../components/Experience.astro';
+import type { ExperienceItem } from '../components/Experience.astro';
+import Testimonials from '../components/Testimonials.astro';
+import type { Testimonial } from '../components/Testimonials.astro';
+import Contact from '../components/Contact.astro';
+
+// ─── YOUR DATA — edit everything below ───────────────────────────────────────
+
+const personal = {
+  name: "Marcus Chong",
+  title: "Software Engineer — Artificial Intelligence",
+  tagline: "I build computer vision systems, ML infrastructure, and full-stack AI applications — turning research into reliable, production-grade software.",
+  email: "marcuslchong@gmail.com",
+  githubUrl: "https://github.com/marththex",
+  linkedinUrl: "https://linkedin.com/in/marcuslchong",
+  // Replace with your actual image path in /public — e.g. /profile.jpg
+  profileImage: "/profile.jpg",
+};
+
+const bio: string[] = [
+  "I'm a software engineer specialising in artificial intelligence and computer vision, based in Long Beach, California. Over the past 7+ years I've worked across the full stack — from low-level network systems to production ML pipelines — with a focus on shipping AI that actually works in the real world.",
+  "At Boeing, I've developed computer vision tooling with 98% detection accuracy, architected enterprise ML infrastructure, and co-authored internal research that was presented at the Boeing Internal Conference. I care about the unglamorous details: robust pipelines, thorough testing, and documentation that teams can actually rely on.",
+  "Outside of work I run a home lab, contribute to open source, and stay sharp on the latest in systems design and applied ML. If it involves building something with real constraints and real stakes, I'm interested.",
+];
+
+const skills: string[] = [
+  "Python",
+  "AI & ML",
+  "React & Full-Stack Dev",
+  "REST APIs, Data & RAG Pipelines",
+  "Docker, Kubernetes, & CI/CD",
+  "PostgresSQL, MongoDB & AWS S3",
+  "UDP/IP & TCP/IP",
+];
+
+const experience: ExperienceItem[] = [
+  {
+    company: "Boeing",
+    role: "Software Engineer — Artificial Intelligence",
+    period: "Mar 2022 — Present",
+    location: "Long Beach, CA",
+    description: "Building AI and computer vision systems for automated parts inspection, ML infrastructure, and full-stack data pipelines. Working at the intersection of applied research and production engineering.",
+    highlights: [
+      "Developed computer vision tool for automated parts detection achieving 98% accuracy with 0.5–3s processing times",
+      "Reduced inspection reporting time by 67% through AI-powered automation",
+      "Co-authored Boeing Internal Research paper; presented at Boeing Internal Conference (2025) with 4 abstracts approved for 2026",
+      "Built RAG-powered chatbot enabling visual part inspection via vector database queries for defect detection and documentation retrieval",
+      "Developed full-stack React data acquisition app with a pipeline covering frame extraction, audio separation, Faster Whisper speech-to-text, OCR, and YOLOv8 object detection — metadata in MongoDB, objects in AWS S3",
+      "Architected enterprise ML infrastructure using Voxel51, accelerating team AI/CV workflows",
+      "Created middleware policy decision point (PDP) managing US Export access controls across international boundaries",
+      "Managed multiple team servers with full-stack deployments; configured Nginx reverse proxy, routing, and database architecture",
+    ],
+    tech: ["Python", "YOLOv8", "React", "RAG", "Voxel51", "Docker", "MongoDB", "AWS S3", "Nginx", "CI/CD", "REST APIs"],
+  },
+  {
+    company: "Boeing",
+    role: "Software Engineer — Network & Cyber Systems",
+    period: "Jan 2019 — Feb 2022",
+    location: "Huntington Beach, CA",
+    description: "Focused on network systems engineering — designing messaging frameworks, simulation environments, and performance optimisation across complex network topologies.",
+    highlights: [
+      "Deployed unified messaging framework combining UDP speed with TCP reliability",
+      "Architected network simulation capabilities for testing software across diverse topologies",
+      "Analysed network performance bottlenecks and optimised message delivery systems",
+    ],
+    tech: ["TCP/IP", "UDP/IP", "ActiveMQ", "Network Simulation", "C++"],
+  },
+];
+
+const testimonials: Testimonial[] = [
+  {
+    quote: "Marcus consistently demonstrates strong ownership and pays close attention to detail. He is highly responsive in applying customer feedback and consistently delivers on his commitments — his reliability and accountability build trust with stakeholders and contribute positively to overall team effectiveness.",
+    name: "Dick Sigmund",
+    role: "Advance Technologist (Adv Information Technologist-General)",
+    company: "Boeing",
+    initials: "DS",
+  },
+  {
+    quote: "Marcus regularly produces high-quality results quickly on self-imposed accelerated timelines without any sacrifice to quality or thoroughness. His responses and explanations are detailed and well-structured, which makes handoffs seamless. I would strongly recommend Marcus for the next level in his career at Boeing.",
+    name: "Mark Montilla",
+    role: "Mkt Forcast & Sales Init Anlyst (Market Analysis)",
+    company: "Boeing",
+    initials: "MM",
+  },
+  {
+    quote: "Marcus is a thoughtful, efficient and versatile software engineer — proficient in containerized software architecture and an effective full-stack developer strongly emphasized around AI. He is self-driven even with very limited guidance and willingly seeks out review to ensure he is on the right track.",
+    name: "Joseph Fagerburg",
+    role: "Software Engineer - Developer, Associate Technical Fellow (ATF)",
+    company: "Boeing",
+    initials: "JF",
+  },
+  {
+    quote: "Marcus is consistently responsive and incredibly helpful, promptly addressing questions and providing clear guidance that keeps projects moving forward. His collaborative approach and focus on safety and quality build trust across teams, making him a go-to resource for both technical issues and operational concerns.",
+    name: "Aria Askaryar",
+    role: "Software Engineer - Artifical Intelligence",
+    company: "Boeing",
+    initials: "AA",
+  },
+  {
+    quote: "Marcus is a highly effective Software Engineer with strong skills in API design, database discussions, and network connectivity. His proactive approach to meeting with customers to collect and curate data ensures that the solutions provided are both relevant and valuable.",
+    name: "Dotun Akintayo",
+    role: "Software Engineer - Artifical Intelligenc",
+    company: "Boeing",
+    initials: "DA",
+  },
+  {
+    quote: "Marcus has been a great addition to the team. He gets acclimated quickly, completes his tasks, and is proactive in asking questions and discussing ideas. He's a great developer and an even better teammate — I really enjoy working with him!",
+    name: "Michelle Zheng",
+    role: "Software Engineer - Artifical Intelligenc",
+    company: "Boeing",
+    initials: "MZ",
+  },
+  {
+    quote: "Marcus collaborated with excellent software engineering skills and proactive teamwork, enabling all project deliverables to be delivered on schedule. He demonstrated a high level of ownership and provided kind, proactive responses to various questions and help requests from the project team.",
+    name: "Jung-Hyun Oh",
+    role: "Artifical Intelligence Engineering Senior Manager",
+    company: "Boeing",
+    initials: "JO",
+  },
+  {
+    quote: "Your prompt responses and delivery helped prove our approach and realize value to our team. If I could have one or two more people like you, it would be great for achieving our objectives.",
+    name: "Soohwan Bae",
+    role: "Engineering Multi-Skill Manager",
+    company: "Boeing",
+    initials: "SB",
+  },
+  {
+    quote: "Marcus is doing an amazing job taking initiatives and following software engineering requirements to put our AI solutions into production. We are very lucky to have him as part of the team and at Boeing.",
+    name: "Amir Afrasiabi",
+    role: "Advanceed Technologist (Data Analysics), Associate Technical Fellow (ATF), Technical Lead Engineer (TLE)",
+    company: "Boeing",
+    initials: "AF",
+  },
+  {
+    quote: "Your overall impact on the business is highly positive. Your expertise in backend development and AI deep learning significantly contributes to our technical capabilities. Your innovative solutions and proactive approach help drive projects forward and maintain our reputation for high quality delivery.",
+    name: "Sina Rafati",
+    role: "Software Engineer Manager",
+    company: "AMD",
+    initials: "SR",
+  },
+   {
+    quote: "Marcus is doing a great job managing team work in progress and leading team meetings, along with follow-up for task closure. He provides excellent guidance to other team members for alignment with high-level architecture and product plans. He is a key member of the team and critical to several developments' success.",
+    name: "Brett Factory",
+    role: "Advance Technologist Manager",
+    company: "Boeing",
+    initials: "BF",
+  },
+];
+---
+
+<BaseLayout title={`${personal.name} — Software Engineer`}>
+  <Hero
+    name={personal.name}
+    title={personal.title}
+    tagline={personal.tagline}
+    githubUrl={personal.githubUrl}
+    linkedinUrl={personal.linkedinUrl}
+    profileImage={personal.profileImage}
+  />
+
+  <div class="divider"><div class="container"></div></div>
+
+  <About bio={bio} skills={skills} />
+
+  <div class="divider"><div class="container"></div></div>
+
+  <Experience items={experience} />
+
+  <div class="divider"><div class="container"></div></div>
+
+  <Testimonials items={testimonials} />
+
+  <div class="divider"><div class="container"></div></div>
+
+  <Contact
+    email={personal.email}
+    githubUrl={personal.githubUrl}
+    linkedinUrl={personal.linkedinUrl}
+  />
+</BaseLayout>
+
+<style>
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: var(--border);
+  }
+</style>

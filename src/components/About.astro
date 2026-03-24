@@ -1,0 +1,107 @@
+---
+interface Props {
+  bio: string[];
+  skills: string[];
+}
+
+const { bio, skills } = Astro.props;
+---
+
+<section class="section" id="about">
+  <div class="container">
+    <p class="section-label">About</p>
+    <div class="about-grid">
+      <div class="about-text">
+        <h2 class="section-title">A developer who<br/><em>sweats the details</em></h2>
+        {bio.map((paragraph) => (
+          <p class="about-para">{paragraph}</p>
+        ))}
+      </div>
+      <div class="about-skills">
+        <p class="skills-label">Tech I work with</p>
+        <ul class="skills-list">
+          {skills.map((skill) => (
+            <li class="skill-item">
+              <span class="skill-arrow">→</span>
+              {skill}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 5rem;
+    align-items: start;
+  }
+
+  .about-text h2 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .about-para {
+    color: var(--text-2);
+    margin-bottom: 1.25rem;
+    font-size: 1.1rem;
+    line-height: 1.8;
+  }
+
+  .about-skills {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    padding: 2rem;
+    position: sticky;
+    top: 6rem;
+  }
+
+  .skills-label {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--text-3);
+    margin-bottom: 1.5rem;
+  }
+
+  .skills-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .skill-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--text);
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .skill-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .skill-arrow {
+    color: var(--accent);
+    font-size: 0.75rem;
+  }
+
+  @media (max-width: 900px) {
+    .about-grid {
+      grid-template-columns: 1fr;
+      gap: 3rem;
+    }
+    .about-skills { position: static; }
+  }
+</style>

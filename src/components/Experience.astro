@@ -1,0 +1,197 @@
+---
+export interface ExperienceItem {
+  company: string;
+  role: string;
+  period: string;
+  location: string;
+  description: string;
+  highlights: string[];
+  tech: string[];
+}
+
+interface Props {
+  items: ExperienceItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<section class="section" id="experience">
+  <div class="container">
+    <p class="section-label">Experience</p>
+    <h2 class="section-title">Where I've worked</h2>
+    <div class="timeline">
+      {items.map((item, index) => (
+        <div class="timeline-item">
+          <div class="timeline-marker">
+            <span class="marker-index">{String(index + 1).padStart(2, '0')}</span>
+            <div class="marker-line"></div>
+          </div>
+          <div class="timeline-content">
+            <div class="timeline-header">
+              <div>
+                <h3 class="timeline-role">{item.role}</h3>
+                <p class="timeline-company">{item.company}</p>
+              </div>
+              <div class="timeline-meta">
+                <span class="timeline-period">{item.period}</span>
+                <span class="timeline-location">{item.location}</span>
+              </div>
+            </div>
+            <p class="timeline-desc">{item.description}</p>
+            <ul class="timeline-highlights">
+              {item.highlights.map((h) => (
+                <li>{h}</li>
+              ))}
+            </ul>
+            <div class="timeline-tech">
+              {item.tech.map((t) => (
+                <span class="tech-tag">{t}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .timeline-item {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 2.5rem;
+  }
+
+  .timeline-marker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 0.25rem;
+  }
+
+  .marker-index {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+  }
+
+  .marker-line {
+    flex: 1;
+    width: 1px;
+    background: var(--border);
+    min-height: 2rem;
+  }
+
+  .timeline-item:last-child .marker-line {
+    display: none;
+  }
+
+  .timeline-content {
+    padding-bottom: 4rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 0;
+  }
+
+  .timeline-item:last-child .timeline-content {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .timeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+  }
+
+  .timeline-role {
+    font-size: 1.4rem;
+    color: var(--text);
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+
+  .timeline-company {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--accent);
+  }
+
+  .timeline-meta {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .timeline-period,
+  .timeline-location {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-3);
+    letter-spacing: 0.05em;
+  }
+
+  .timeline-desc {
+    color: var(--text-2);
+    margin-bottom: 1.25rem;
+    line-height: 1.75;
+  }
+
+  .timeline-highlights {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .timeline-highlights li {
+    padding-left: 1.25rem;
+    position: relative;
+    color: var(--text-2);
+    font-size: 0.95rem;
+  }
+
+  .timeline-highlights li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-size: 0.75rem;
+  }
+
+  .timeline-tech {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .tech-tag {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    padding: 0.3rem 0.75rem;
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    color: var(--text-2);
+    letter-spacing: 0.05em;
+  }
+
+  @media (max-width: 640px) {
+    .timeline-item { grid-template-columns: 1fr; }
+    .timeline-marker { flex-direction: row; }
+    .marker-line { width: 2rem; height: 1px; min-height: unset; }
+    .timeline-meta { text-align: left; }
+  }
+</style>
