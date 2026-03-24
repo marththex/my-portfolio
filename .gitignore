@@ -1,22 +1,19 @@
 # Dependencies
 node_modules/
- 
+
 # Build output
 dist/
 .astro/
- 
+
 # Environment
 .env
 .env.*
 !.env.example
- 
-# Lock file — regenerated per platform
-package-lock.json
- 
+
 # OS
 .DS_Store
 Thumbs.db
- 
+
 # Editor
 .vscode/
 .idea/

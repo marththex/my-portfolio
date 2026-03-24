@@ -19,12 +19,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'npm'
 
       - name: Install dependencies
         run: |
+          rm -rf node_modules
           npm install
-          npm install --save-optional @rollup/rollup-linux-x64-gnu
 
       # Use locally installed tsc from node_modules, not npx
       - name: Type check
