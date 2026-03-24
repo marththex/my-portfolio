@@ -70,6 +70,7 @@ const { items } = Astro.props;
     overflow: hidden;
     padding: 1rem 0 2rem;
     touch-action: pan-y;
+    overscroll-behavior-x: none;
     width: 100%;
   }
 
@@ -351,18 +352,24 @@ const { items } = Astro.props;
     }
   }
 
-  // Touch
-  track.addEventListener('touchstart',  (e: TouchEvent) => onDragStart(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
-  track.addEventListener('touchmove',   (e: TouchEvent) => {
+  // Touch — listeners on viewport element for better iOS compatibility
+  viewport.addEventListener('touchstart', (e: TouchEvent) => {
+    onDragStart(e.touches[0].clientX, e.touches[0].clientY);
+  }, { passive: true });
+
+  viewport.addEventListener('touchmove', (e: TouchEvent) => {
     const dx = Math.abs(e.touches[0].clientX - dragStartX);
     const dy = Math.abs(e.touches[0].clientY - touchStartY);
     if (!isHorizontal && (dx > 5 || dy > 5)) isHorizontal = dx >= dy;
     if (isHorizontal) {
-      e.preventDefault();
+      e.preventDefault(); // stop iOS page scroll during horizontal swipe
       onDragMove(e.touches[0].clientX, e.touches[0].clientY);
     }
   }, { passive: false });
-  track.addEventListener('touchend',    (e: TouchEvent) => onDragEnd(e.changedTouches[0].clientX));
+
+  viewport.addEventListener('touchend', (e: TouchEvent) => {
+    onDragEnd(e.changedTouches[0].clientX);
+  });
 
   // Mouse
   track.addEventListener('mousedown',  (e: MouseEvent) => onDragStart(e.clientX));
