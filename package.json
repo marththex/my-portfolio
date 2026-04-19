@@ -11,14 +11,19 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run"
   },
   "dependencies": {
     "@astrojs/node": "^10.0.3",
     "astro": "^6.0.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.4",
     "@types/node": "^25.5.0",
-    "typescript": "^5.0.0"
+    "eslint": "^9.39.4",
+    "typescript": "^5.0.0",
+    "vitest": "^3.2.4"
   }
 }

@@ -1,11 +1,5 @@
 ---
-export interface Testimonial {
-  quote: string;
-  name: string;
-  role: string;
-  company: string;
-  initials: string;
-}
+import type { Testimonial } from '../data/testimonials';
 
 interface Props {
   items: Testimonial[];
@@ -14,10 +8,10 @@ interface Props {
 const { items } = Astro.props;
 ---
 
-<section class="section" id="testimonials">
+<section class="section" id="testimonials" role="region" aria-labelledby="testimonials-heading">
   <div class="container">
-    <p class="section-label">Testimonials</p>
-    <h2 class="section-title testimonials-title">What colleagues say</h2>
+    <p class="section-label">Kind words</p>
+    <h2 class="section-title testimonials-title" id="testimonials-heading">What colleagues say</h2>
   </div>
 
   <!-- Viewport sits OUTSIDE container so cards can bleed edge-to-edge -->
@@ -25,13 +19,14 @@ const { items } = Astro.props;
     <div class="carousel-track" id="carouselTrack">
       {items.map((item) => (
         <div class="carousel-card">
-          <div class="card-quote-mark">"</div>
+          <div class="card-quote-mark" aria-hidden="true">&ldquo;</div>
           <p class="card-quote">{item.quote}</p>
           <div class="card-author">
-            <div class="author-avatar">{item.initials}</div>
+            <div class="author-avatar" aria-hidden="true">{item.initials}</div>
             <div class="author-info">
               <p class="author-name">{item.name}</p>
-              <p class="author-role">{item.role} · {item.company}</p>
+              <p class="author-role">{item.role}</p>
+              <p class="author-company">{item.company}</p>
             </div>
           </div>
         </div>
@@ -163,6 +158,15 @@ const { items } = Astro.props;
     font-size: 0.68rem;
     color: var(--text-3);
     margin-top: 0.15rem;
+    line-height: 1.4;
+  }
+
+  .author-company {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--accent);
+    opacity: 0.7;
+    margin-top: 0.1rem;
   }
 
   .carousel-controls {
@@ -375,6 +379,14 @@ const { items } = Astro.props;
   track.addEventListener('mousedown',  (e: MouseEvent) => onDragStart(e.clientX));
   window.addEventListener('mousemove', (e: MouseEvent) => onDragMove(e.clientX));
   window.addEventListener('mouseup',   (e: MouseEvent) => onDragEnd(e.clientX));
+
+  // Keyboard
+  document.addEventListener('keydown', (e: KeyboardEvent) => {
+    const section = document.getElementById('testimonials');
+    if (!section || !section.matches(':hover') && document.activeElement && !section.contains(document.activeElement)) return;
+    if (e.key === 'ArrowLeft')  { e.preventDefault(); prev(); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); next(); }
+  });
 
   // Resize
   window.addEventListener('resize', () => setTranslate(getCardWidth() * current, false));
