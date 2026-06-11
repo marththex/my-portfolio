@@ -16,6 +16,7 @@ const {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="description" content={description} />
+    <meta name="theme-color" content="#080808" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -75,7 +76,10 @@ const {
     left: 0;
     right: 0;
     z-index: 100;
-    padding: 1.25rem 0;
+    /* viewport-fit=cover puts the nav under the iPhone status bar; the
+       safe-area padding keeps the logo clear and lets the scrolled
+       background mask content scrolling behind the status bar. */
+    padding: calc(1.25rem + env(safe-area-inset-top)) 0 1.25rem;
     transition: background 0.3s, border-bottom 0.3s;
   }
 
