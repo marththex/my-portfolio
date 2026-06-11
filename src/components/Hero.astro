@@ -307,6 +307,13 @@ const yearsExp = new Date().getFullYear() - startYear;
   }
 
   @media (max-width: 900px) {
+    .hero {
+      /* Stacked content is taller than the viewport; centering would push
+         the overflow above the scroll origin and clip the image/badge. */
+      min-height: auto;
+      justify-content: flex-start;
+      padding-top: calc(7rem + env(safe-area-inset-top));
+    }
     .hero-inner {
       grid-template-columns: 1fr;
       text-align: center;

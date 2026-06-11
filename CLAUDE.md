@@ -64,6 +64,7 @@ npm run preview      # Serve production build locally
 - **Testimonial data** is the exception — it lives in `src/data/testimonials.ts` so it can be imported by both the component and the test suite.
 - **Component props** are typed inline via Astro's `interface Props {}` block, not in separate `.d.ts` files.
 - **Styling**: no Tailwind, no CSS modules. Each component uses a scoped `<style>` block. Shared design tokens (colors, fonts, spacing) are CSS custom properties on `:root` in `global.css`. Swap `--accent` in `global.css` to retheme the entire site.
+- **Breakpoints**: `768px` is the global mobile breakpoint (nav, footer, container padding in `global.css`); `Hero.astro` stacks to a single column at `900px`. On mobile the hero must not rely on `100vh` + `justify-content: center` — the stacked content is taller than the viewport, and flex centering pushes the overflow above the scroll origin where it can't be scrolled to (clipping the image/badge under the fixed nav). The mobile media query uses `justify-content: flex-start` with explicit top padding (plus `env(safe-area-inset-top)` for notched phones) instead.
 - **Path aliases**: `@components/*`, `@layouts/*`, `@styles/*` are configured in `tsconfig.json`.
 - **Output mode**: `server` (not `static`) because of the `/api/contact` route. The `@astrojs/node` standalone adapter generates a Node.js server in `dist/`.
 - **CSRF**: disabled in `astro.config.mjs` (`checkOrigin: false`) — the contact API handles its own validation.
