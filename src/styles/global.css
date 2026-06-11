@@ -32,6 +32,7 @@
 html {
   scroll-behavior: smooth;
   font-size: 16px;
+  height: 100%;
 }
 
 body {
@@ -41,7 +42,12 @@ body {
   font-size: 1.125rem;
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
-  overflow-x: clip; /* 'clip' prevents horizontal scroll without creating a stacking context that clips descenders */
+  /* The document must never scroll: iOS Safari paints document-scrolled
+     content in the status-bar strip above the viewport, and no fixed
+     element can mask it. All scrolling happens in .page-scroll
+     (BaseLayout.astro), so the strip only ever shows this background. */
+  height: 100%;
+  overflow: hidden;
 }
 
 /* Noise texture overlay */

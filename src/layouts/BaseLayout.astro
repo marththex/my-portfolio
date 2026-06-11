@@ -14,7 +14,7 @@ const {
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <meta name="theme-color" content="#080808" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -47,6 +47,7 @@ const {
       </ul>
     </div>
 
+    <div class="page-scroll" id="pageScroll">
     <main>
       <slot />
     </main>
@@ -61,6 +62,7 @@ const {
         </div>
       </div>
     </footer>
+    </div>
   </body>
 </html>
 
@@ -76,24 +78,18 @@ const {
     left: 0;
     right: 0;
     z-index: 100;
-    /* env(safe-area-inset-top) is 0 in portrait Safari but real in
-       landscape/standalone, where it keeps the logo out of the notch. */
-    padding: calc(1.25rem + env(safe-area-inset-top)) 0 1.25rem;
+    padding: 1.25rem 0;
     transition: background 0.3s, border-bottom 0.3s;
   }
 
-  /* iOS Safari paints the page edge-to-edge: content scrolled past the
-     viewport top stays visible, unblurred, in the status-bar strip above
-     the layout viewport (fixed top:0 anchors below the status bar). This
-     opaque cap extends above the nav to mask that strip. */
-  .nav::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 100%;
-    height: 120px;
-    background: var(--bg);
+  /* Owns all page scrolling — the document itself must stay unscrollable,
+     or iOS Safari paints scrolled content in the status-bar strip where
+     no fixed element can mask it (see global.css html/body lock). */
+  .page-scroll {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: clip;
+    scroll-behavior: smooth;
   }
 
   .nav.scrolled {
@@ -241,10 +237,11 @@ const {
 </style>
 
 <script>
-  // Sticky nav
+  // Sticky nav — scrolling happens in #pageScroll, not the document
   const nav = document.querySelector('.nav') as HTMLElement;
-  window.addEventListener('scroll', () => {
-    nav.classList.toggle('scrolled', window.scrollY > 40);
+  const scroller = document.getElementById('pageScroll') as HTMLElement;
+  scroller.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', scroller.scrollTop > 40);
   });
 
   // Hamburger
