@@ -76,11 +76,24 @@ const {
     left: 0;
     right: 0;
     z-index: 100;
-    /* viewport-fit=cover puts the nav under the iPhone status bar; the
-       safe-area padding keeps the logo clear and lets the scrolled
-       background mask content scrolling behind the status bar. */
+    /* env(safe-area-inset-top) is 0 in portrait Safari but real in
+       landscape/standalone, where it keeps the logo out of the notch. */
     padding: calc(1.25rem + env(safe-area-inset-top)) 0 1.25rem;
     transition: background 0.3s, border-bottom 0.3s;
+  }
+
+  /* iOS Safari paints the page edge-to-edge: content scrolled past the
+     viewport top stays visible, unblurred, in the status-bar strip above
+     the layout viewport (fixed top:0 anchors below the status bar). This
+     opaque cap extends above the nav to mask that strip. */
+  .nav::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100%;
+    height: 120px;
+    background: var(--bg);
   }
 
   .nav.scrolled {
