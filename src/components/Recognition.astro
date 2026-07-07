@@ -1,0 +1,80 @@
+---
+export interface RecognitionItem {
+  stat: string;
+  title: string;
+  detail: string;
+}
+
+interface Props {
+  items: RecognitionItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<section class="section" id="recognition">
+  <div class="container">
+    <p class="section-label">Recognition</p>
+    <h2 class="section-title">Patents & <em>awards</em></h2>
+    <div class="recog-grid">
+      {items.map((item) => (
+        <div class="recog-card">
+          <span class="recog-stat">{item.stat}</span>
+          <h3 class="recog-title">{item.title}</h3>
+          <p class="recog-detail">{item.detail}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .section-title em {
+    font-style: italic;
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    color: var(--accent);
+  }
+
+  .recog-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  .recog-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    padding: 2rem;
+    transition: border-color 0.3s;
+  }
+
+  .recog-card:hover { border-color: var(--accent); }
+
+  .recog-stat {
+    font-family: var(--font-display);
+    font-size: 3rem;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 1.25rem;
+  }
+
+  .recog-title {
+    font-size: 1.1rem;
+    color: var(--text);
+    font-weight: 700;
+    margin-bottom: 0.6rem;
+  }
+
+  .recog-detail {
+    color: var(--text-2);
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 768px) {
+    .recog-grid { grid-template-columns: 1fr; }
+  }
+</style>

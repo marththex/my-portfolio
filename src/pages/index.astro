@@ -1,9 +1,16 @@
 ---
+export const prerender = true;
+
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
 import About from '../components/About.astro';
+import type { SkillGroup } from '../components/About.astro';
+import Recognition from '../components/Recognition.astro';
+import type { RecognitionItem } from '../components/Recognition.astro';
 import Experience from '../components/Experience.astro';
 import type { ExperienceItem } from '../components/Experience.astro';
+import Education from '../components/Education.astro';
+import type { EducationItem } from '../components/Education.astro';
 import Testimonials from '../components/Testimonials.astro';
 import { testimonials } from '../data/testimonials';
 import Contact from '../components/Contact.astro';
@@ -13,7 +20,7 @@ import Contact from '../components/Contact.astro';
 const personal = {
   name: "Marcus Chong",
   title: "Software Engineer — Artificial Intelligence",
-  tagline: "I build computer vision systems, ML infrastructure, and full-stack AI applications — turning research into reliable, production-grade software.",
+  tagline: "I build production LLM applications, retrieval pipelines, and multimodal AI systems — turning research into reliable, production-grade software.",
   email: "marcuslchong@gmail.com",
   githubUrl: "https://github.com/marththex",
   linkedinUrl: "https://linkedin.com/in/marcuslchong",
@@ -22,19 +29,54 @@ const personal = {
 };
 
 const bio: string[] = [
-  "I'm a software engineer specialising in artificial intelligence and computer vision, based in Long Beach, California. Over the past 7+ years I've worked across the full stack — from low-level network systems to production ML pipelines — with a focus on shipping AI that actually works in the real world.",
-  "At Boeing, I've developed computer vision tooling with 98% detection accuracy, architected enterprise ML infrastructure, and co-authored internal research that was presented at the Boeing Internal Conference. I care about the unglamorous details: robust pipelines, thorough testing, and documentation that teams can actually rely on.",
+  "I'm an AI engineer based in Fullerton, California, with 7+ years at Boeing building production LLM and AI systems in defense aerospace. My work spans LLM applications, retrieval, and multimodal sensor data processing — from low-level network systems early in my career to the production ML pipelines I ship today — with a focus on AI that actually works in the real world.",
+  "At Boeing, I've built LLM-powered tools grounded in enterprise data, benchmarked retrieval strategies for engineering documents, productionised a computer vision model with 98% detection accuracy that cut inspection reporting time 67%, and architected the team's 0-to-1 ML infrastructure. I have two U.S. patents pending in multimodal data processing and LLM inference optimisation, and my work won Best Paper at Boeing's largest internal AI conference. I care about the unglamorous details: robust pipelines, thorough testing, and documentation that teams can actually rely on.",
   "Outside of work I run a home lab, contribute to open source, and stay sharp on the latest in systems design and applied ML. If it involves building something with real constraints and real stakes, I'm interested.",
 ];
 
-const skills: string[] = [
-  "Python",
-  "AI & ML",
-  "React & Full-Stack Dev",
-  "REST APIs, Data & RAG Pipelines",
-  "Docker, Kubernetes, & CI/CD",
-  "PostgresSQL, MongoDB & AWS S3",
-  "UDP/IP & TCP/IP",
+const skills: SkillGroup[] = [
+  {
+    label: "LLM & Retrieval",
+    items: ["Prompt Engineering", "RAG", "Hybrid Retrieval + Reranking", "ColPali", "Docling", "Unstructured", "Gemma", "OpenAI/GPT"],
+  },
+  {
+    label: "Vector & Embeddings",
+    items: ["Milvus", "ChromaDB", "Embedding Pipelines", "Semantic Search"],
+  },
+  {
+    label: "Multimodal & CV",
+    items: ["YOLOv8", "OpenCV", "EasyOCR", "Tesseract", "Faster Whisper", "PyTorch", "scikit-learn"],
+  },
+  {
+    label: "Deployment & MLOps",
+    items: ["vLLM", "CUDA", "On-Prem GPU", "Docker", "Kubernetes", "GitLab CI", "Model Versioning"],
+  },
+  {
+    label: "Languages & Platform",
+    items: ["Python", "TypeScript", "JavaScript", "C#", "C++", "SQL", "AWS", "Linux", "REST/OpenAPI"],
+  },
+  {
+    label: "Security",
+    items: ["ITAR/EAR Compliance", "Access Control", "Secure API Design"],
+  },
+];
+
+const recognition: RecognitionItem[] = [
+  {
+    stat: "02",
+    title: "U.S. Patents Pending",
+    detail: "Multimodal data processing and LLM inference optimisation — filed May 2026.",
+  },
+  {
+    stat: "01",
+    title: "Best Paper Award",
+    detail: "Boeing's largest internal AI conference (2025). Co-author of an internal research publication on AI-powered automation.",
+  },
+  {
+    stat: "05",
+    title: "Conference Presentations",
+    detail: "One delivered in 2025 and four delivered in 2026.",
+  },
 ];
 
 const experience: ExperienceItem[] = [
@@ -43,24 +85,23 @@ const experience: ExperienceItem[] = [
     role: "Software Engineer — Artificial Intelligence",
     period: "Mar 2022 — Present",
     location: "Long Beach, CA",
-    description: "Building AI and computer vision systems for automated parts inspection, ML infrastructure, and full-stack data pipelines. Working at the intersection of applied research and production engineering.",
+    description: "Building production LLM applications, multimodal sensor pipelines, and the ML infrastructure behind them — applied research meeting production engineering in a safety-critical domain.",
     highlights: [
-      "Developed computer vision tool for automated parts detection achieving 98% accuracy with 0.5–3s processing times",
-      "Reduced inspection reporting time by 67% through AI-powered automation",
-      "Co-authored Boeing Internal Research paper; presented at Boeing Internal Conference (2025) with 4 abstracts approved for 2026",
-      "Built RAG-powered chatbot enabling visual part inspection via vector database queries for defect detection and documentation retrieval",
-      "Developed full-stack React data acquisition app with a pipeline covering frame extraction, audio separation, Faster Whisper speech-to-text, OCR, and YOLOv8 object detection — metadata in MongoDB, objects in AWS S3",
-      "Architected enterprise ML infrastructure using Voxel51, accelerating team AI/CV workflows",
-      "Created middleware policy decision point (PDP) managing US Export access controls across international boundaries",
-      "Managed multiple team servers with full-stack deployments; configured Nginx reverse proxy, routing, and database architecture",
+      "Built production LLM-powered tools integrating models with internal systems, REST APIs, and enterprise data — evaluating frontier and self-hosted models (Gemma family, internal GPT-based service) per use case, with prompt engineering and grounding for reliable outputs in safety-critical settings",
+      "Benchmarked retrieval strategies on engineering documents — Docling and Unstructured parsing, ColPali, and hybrid retrieval with reranking — and engineered embedding pipelines on Milvus (ChromaDB for prototyping)",
+      "Architected a production multimodal pipeline over camera video, audio, imagery, and documents — frame extraction, YOLOv8 object detection, OCR, and Faster Whisper speech-to-text; patent pending on the processing techniques",
+      "Built and productionised a computer vision model — 98% detection accuracy at 0.5–3s latency, cutting inspection reporting time 67% in live operations",
+      "Established team-wide evaluation and testing standards — retrieval-quality test sets, output validation, pytest regression suites — and built the CI/CD, Kubernetes, and on-prem NVIDIA GPU infrastructure behind them: the team's 0-to-1 ML platform",
+      "Built ITAR/EAR access-control middleware enforcing export controls across international boundaries — secure-by-design within DoD-relevant compliance constraints",
+      "Mentored engineers and led cross-functional initiatives, delivering AI enablement across engineering and operations",
     ],
-    tech: ["Python", "YOLOv8", "React", "RAG", "Voxel51", "Docker", "MongoDB", "AWS S3", "Nginx", "CI/CD", "REST APIs"],
+    tech: ["Python", "PyTorch", "YOLOv8", "RAG", "Milvus", "ChromaDB", "vLLM", "CUDA", "Docker", "Kubernetes", "GitLab CI", "MongoDB", "AWS S3"],
   },
   {
     company: "Boeing",
     role: "Software Engineer — Network & Cyber Systems",
     period: "Jan 2019 — Feb 2022",
-    location: "Huntington Beach, CA",
+    location: "Long Beach, CA",
     description: "Focused on network systems engineering — designing messaging frameworks, simulation environments, and performance optimisation across complex network topologies.",
     highlights: [
       "Deployed unified messaging framework combining UDP speed with TCP reliability",
@@ -71,9 +112,27 @@ const experience: ExperienceItem[] = [
   },
 ];
 
+const education: EducationItem[] = [
+  {
+    school: "Georgia Institute of Technology",
+    degree: "Master of Science in Computer Science",
+    period: "Graduated May 2023",
+    location: "Atlanta, GA",
+  },
+  {
+    school: "Chapman University",
+    degree: "Bachelor of Science in Computer Science",
+    period: "Graduated December 2018",
+    location: "Orange, CA",
+  },
+];
+
 ---
 
-<BaseLayout title={`${personal.name} — Software Engineer`}>
+<BaseLayout
+  title={`${personal.name} — AI Engineer`}
+  description="AI engineer with 7+ years building production LLM, retrieval, and multimodal AI systems in defense aerospace. 2 U.S. patents pending; M.S. Computer Science, Georgia Tech."
+>
   <Hero
     name={personal.name}
     title={personal.title}
@@ -89,7 +148,15 @@ const experience: ExperienceItem[] = [
 
   <div class="divider"><div class="container"></div></div>
 
+  <Recognition items={recognition} />
+
+  <div class="divider"><div class="container"></div></div>
+
   <Experience items={experience} />
+
+  <div class="divider"><div class="container"></div></div>
+
+  <Education items={education} />
 
   <div class="divider"><div class="container"></div></div>
 
@@ -98,7 +165,6 @@ const experience: ExperienceItem[] = [
   <div class="divider"><div class="container"></div></div>
 
   <Contact
-    email={personal.email}
     githubUrl={personal.githubUrl}
     linkedinUrl={personal.linkedinUrl}
   />

@@ -8,45 +8,47 @@ interface Props {
 const { items } = Astro.props;
 ---
 
-<section class="section" id="testimonials" role="region" aria-labelledby="testimonials-heading">
+<section class="section" id="testimonials" aria-labelledby="testimonials-heading">
   <div class="container">
     <p class="section-label">Kind words</p>
     <h2 class="section-title testimonials-title" id="testimonials-heading">What colleagues say</h2>
-  </div>
 
-  <!-- Viewport sits OUTSIDE container so cards can bleed edge-to-edge -->
-  <div class="carousel-viewport" id="carouselViewport">
-    <div class="carousel-track" id="carouselTrack">
-      {items.map((item) => (
-        <div class="carousel-card">
-          <div class="card-quote-mark" aria-hidden="true">&ldquo;</div>
-          <p class="card-quote">{item.quote}</p>
-          <div class="card-author">
-            <div class="author-avatar" aria-hidden="true">{item.initials}</div>
-            <div class="author-info">
-              <p class="author-name">{item.name}</p>
-              <p class="author-role">{item.role}</p>
-              <p class="author-company">{item.company}</p>
+    <div
+      class="carousel-viewport"
+      id="carouselViewport"
+      tabindex="0"
+      role="group"
+      aria-roledescription="carousel"
+      aria-label="Colleague testimonials"
+    >
+      <div class="carousel-track" id="carouselTrack">
+        {items.map((item) => (
+          <article class="carousel-card">
+            <div class="card-quote-mark" aria-hidden="true">&ldquo;</div>
+            <p class="card-quote">{item.quote}</p>
+            <div class="card-author">
+              <div class="author-avatar" aria-hidden="true">{item.initials}</div>
+              <div class="author-info">
+                <p class="author-name">{item.name}</p>
+                <p class="author-role">{item.role}</p>
+                <p class="author-company">{item.company}</p>
+              </div>
             </div>
-          </div>
-        </div>
-      ))}
+          </article>
+        ))}
+      </div>
     </div>
-  </div>
 
-  <div class="container">
     <div class="carousel-controls">
-      <button class="carousel-btn" id="prevBtn" aria-label="Previous">
+      <button class="carousel-btn" id="prevBtn" aria-label="Previous testimonials">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M19 12H5M12 5l-7 7 7 7"/>
         </svg>
       </button>
-      <div class="carousel-dots" id="carouselDots">
-        {items.map((_, i) => (
-          <button class={`dot ${i === 0 ? 'active' : ''}`} data-i={i} aria-label={`Go to ${i + 1}`}></button>
-        ))}
+      <div class="carousel-progress" aria-hidden="true">
+        <div class="carousel-thumb" id="carouselThumb"></div>
       </div>
-      <button class="carousel-btn" id="nextBtn" aria-label="Next">
+      <button class="carousel-btn" id="nextBtn" aria-label="Next testimonials">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M5 12h14M12 5l7 7-7 7"/>
         </svg>
@@ -61,34 +63,31 @@ const { items } = Astro.props;
     font-weight: 400;
   }
 
+  /* Native horizontal scroll with snap — aligned to the page container,
+     no clones, no transform math. */
   .carousel-viewport {
-    overflow: hidden;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
     padding: 1rem 0 2rem;
-    touch-action: pan-y;
-    overscroll-behavior-x: none;
-    width: 100%;
+    overscroll-behavior-x: contain;
+  }
+
+  .carousel-viewport::-webkit-scrollbar { display: none; }
+
+  .carousel-viewport:focus-visible {
+    outline: 1px solid var(--accent);
+    outline-offset: 4px;
   }
 
   .carousel-track {
     display: flex;
     gap: 1.5rem;
-    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    will-change: transform;
-    cursor: grab;
-    user-select: none;
-    touch-action: pan-y;
-    /* Left padding aligns first card with page container */
-    padding-left: max(1.25rem, calc((100vw - min(100vw, 1100px)) / 2 + 2rem));
   }
 
-  .carousel-track.dragging {
-    cursor: grabbing;
-    transition: none;
-  }
-
-  /* Card widths are all viewport-relative so % of track doesn't confuse things */
   .carousel-card {
-    flex: 0 0 calc((min(100vw, 1100px) - 4rem - 3rem) / 3);
+    flex: 0 0 calc((100% - 3rem) / 3);
+    scroll-snap-align: start;
     min-width: 0;
     background: var(--bg-2);
     border: 1px solid var(--border);
@@ -96,8 +95,6 @@ const { items } = Astro.props;
     display: flex;
     flex-direction: column;
     transition: border-color 0.3s;
-    content-visibility: visible;
-    contain: none;
   }
 
   .carousel-card:hover { border-color: var(--accent); }
@@ -172,7 +169,6 @@ const { items } = Astro.props;
   .carousel-controls {
     display: flex;
     align-items: center;
-    justify-content: center;
     gap: 1.5rem;
     margin-top: 0.5rem;
   }
@@ -197,197 +193,93 @@ const { items } = Astro.props;
     background: var(--bg-3);
   }
 
-  .carousel-dots {
-    display: flex;
-    gap: 0.4rem;
-    align-items: center;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
+  /* Scrollbar-style progress line between the buttons */
+  .carousel-progress {
+    position: relative;
+    flex: 1;
+    height: 2px;
     background: var(--border);
-    border: none;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.2s;
-    padding: 0;
-    flex-shrink: 0;
   }
 
-  .dot.active {
+  .carousel-thumb {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
     background: var(--accent);
-    transform: scale(1.4);
+    transition: left 0.15s linear, width 0.15s linear;
   }
 
   /* Tablet: 2 cards */
   @media (max-width: 900px) {
     .carousel-card {
-      flex: 0 0 calc((100vw - 2.5rem - 1.5rem) / 2);
+      flex-basis: calc((100% - 1.5rem) / 2);
     }
   }
 
-  /* Mobile: 1 card, centered with equal padding on both sides */
+  /* Mobile: 1 card */
   @media (max-width: 580px) {
-    .carousel-viewport {
-      padding-left: 1.25rem;
-      padding-right: 1.25rem;
-    }
-    .carousel-track {
-      padding-left: 0;
-    }
     .carousel-card {
-      flex: 0 0 calc(100vw - 2.5rem);
+      flex-basis: 100%;
     }
   }
 </style>
 
 <script>
-  const viewport  = document.getElementById('carouselViewport') as HTMLElement;
-  const track     = document.getElementById('carouselTrack')    as HTMLElement;
-  const prevBtn   = document.getElementById('prevBtn')          as HTMLButtonElement;
-  const nextBtn   = document.getElementById('nextBtn')          as HTMLButtonElement;
-  const dots      = Array.from(document.querySelectorAll<HTMLButtonElement>('.dot'));
-  const origCards = Array.from(track.querySelectorAll<HTMLElement>('.carousel-card'));
-  const total     = origCards.length;
-  const CLONES    = 3;
+  const viewport = document.getElementById('carouselViewport') as HTMLElement;
+  const track    = document.getElementById('carouselTrack')    as HTMLElement;
+  const prevBtn  = document.getElementById('prevBtn')          as HTMLButtonElement;
+  const nextBtn  = document.getElementById('nextBtn')          as HTMLButtonElement;
+  const thumb    = document.getElementById('carouselThumb')    as HTMLElement;
 
-  // ── Clone for infinite loop ──────────────────────────────────────────────────
-  for (let i = CLONES - 1; i >= 0; i--) {
-    const clone = origCards[total - CLONES + i].cloneNode(true) as HTMLElement;
-    clone.setAttribute('aria-hidden', 'true');
-    track.insertBefore(clone, track.firstChild);
-  }
-  for (let i = 0; i < CLONES; i++) {
-    const clone = origCards[i].cloneNode(true) as HTMLElement;
-    clone.setAttribute('aria-hidden', 'true');
-    track.appendChild(clone);
+  const GAP = 24; // matches the 1.5rem track gap
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  const step = () => (track.children[0] as HTMLElement).offsetWidth + GAP;
+  const maxScroll = () => viewport.scrollWidth - viewport.clientWidth;
+
+  function scrollToX(x: number): void {
+    viewport.scrollTo({ left: x, behavior: reduceMotion.matches ? 'auto' : 'smooth' });
   }
 
-  let current      = CLONES;
-  let logicalIndex = 0;
-
-  // ── Card width — read from DOM so it matches CSS exactly ────────────────────
-  function getCardWidth(): number {
-    const c = track.children[0] as HTMLElement;
-    // offsetWidth + gap (1.5rem = 24px)
-    return c.offsetWidth + 24;
+  // Buttons wrap around at the ends
+  function next(): void {
+    const max = maxScroll();
+    scrollToX(viewport.scrollLeft >= max - 1 ? 0 : Math.min(viewport.scrollLeft + step(), max));
   }
 
-  function setTranslate(x: number, animated: boolean): void {
-    track.style.transition = animated
-      ? 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
-      : 'none';
-    track.style.transform = `translateX(-${x}px)`;
+  function prev(): void {
+    scrollToX(viewport.scrollLeft <= 1 ? maxScroll() : Math.max(viewport.scrollLeft - step(), 0));
   }
-
-  function updateDots(logical: number): void {
-    const w = ((logical % total) + total) % total;
-    dots.forEach((d, i) => d.classList.toggle('active', i === w));
-  }
-
-  // Init
-  setTranslate(getCardWidth() * current, false);
-  updateDots(logicalIndex);
-
-  // ── Infinite warp ────────────────────────────────────────────────────────────
-  track.addEventListener('transitionend', () => {
-    if (current >= total + CLONES) {
-      current -= total;
-      setTranslate(getCardWidth() * current, false);
-    } else if (current < CLONES) {
-      current += total;
-      setTranslate(getCardWidth() * current, false);
-    }
-  });
-
-  // ── Navigate ─────────────────────────────────────────────────────────────────
-  function goTo(domIndex: number): void {
-    current      = domIndex;
-    logicalIndex = ((domIndex - CLONES) % total + total) % total;
-    setTranslate(getCardWidth() * current, true);
-    updateDots(logicalIndex);
-  }
-
-  const next = () => goTo(current + 1);
-  const prev = () => goTo(current - 1);
 
   prevBtn.addEventListener('click', prev);
   nextBtn.addEventListener('click', next);
-  dots.forEach((dot, i) => dot.addEventListener('click', () => goTo(i + CLONES)));
 
-  // ── Drag / swipe ─────────────────────────────────────────────────────────────
-  let dragStartX      = 0;
-  let dragStartOffset = 0;
-  let isDragging      = false;
-  let touchStartY     = 0;
-  let isHorizontal    = false;
-
-  function onDragStart(x: number, y = 0): void {
-    isDragging      = true;
-    isHorizontal    = false;
-    dragStartX      = x;
-    touchStartY     = y;
-    dragStartOffset = getCardWidth() * current;
-    track.classList.add('dragging');
-  }
-
-  function onDragMove(x: number, y = 0): void {
-    if (!isDragging) return;
-    const dx = Math.abs(x - dragStartX);
-    const dy = Math.abs(y - touchStartY);
-    if (!isHorizontal && (dx > 5 || dy > 5)) {
-      isHorizontal = dx >= dy;
-    }
-    if (isHorizontal) {
-      setTranslate(dragStartOffset + (dragStartX - x), false);
-    }
-  }
-
-  function onDragEnd(x: number): void {
-    if (!isDragging) return;
-    isDragging = false;
-    track.classList.remove('dragging');
-    if (isHorizontal) {
-      const delta = dragStartX - x;
-      Math.abs(delta) > 60 ? (delta > 0 ? next() : prev()) : setTranslate(getCardWidth() * current, true);
-    }
-  }
-
-  // Touch — listeners on viewport element for better iOS compatibility
-  viewport.addEventListener('touchstart', (e: TouchEvent) => {
-    onDragStart(e.touches[0].clientX, e.touches[0].clientY);
-  }, { passive: true });
-
-  viewport.addEventListener('touchmove', (e: TouchEvent) => {
-    const dx = Math.abs(e.touches[0].clientX - dragStartX);
-    const dy = Math.abs(e.touches[0].clientY - touchStartY);
-    if (!isHorizontal && (dx > 5 || dy > 5)) isHorizontal = dx >= dy;
-    if (isHorizontal) {
-      e.preventDefault(); // stop iOS page scroll during horizontal swipe
-      onDragMove(e.touches[0].clientX, e.touches[0].clientY);
-    }
-  }, { passive: false });
-
-  viewport.addEventListener('touchend', (e: TouchEvent) => {
-    onDragEnd(e.changedTouches[0].clientX);
-  });
-
-  // Mouse
-  track.addEventListener('mousedown',  (e: MouseEvent) => onDragStart(e.clientX));
-  window.addEventListener('mousemove', (e: MouseEvent) => onDragMove(e.clientX));
-  window.addEventListener('mouseup',   (e: MouseEvent) => onDragEnd(e.clientX));
-
-  // Keyboard
-  document.addEventListener('keydown', (e: KeyboardEvent) => {
-    const section = document.getElementById('testimonials');
-    if (!section || !section.matches(':hover') && document.activeElement && !section.contains(document.activeElement)) return;
+  viewport.addEventListener('keydown', (e: KeyboardEvent) => {
     if (e.key === 'ArrowLeft')  { e.preventDefault(); prev(); }
     if (e.key === 'ArrowRight') { e.preventDefault(); next(); }
   });
 
-  // Resize
-  window.addEventListener('resize', () => setTranslate(getCardWidth() * current, false));
+  // Progress thumb mirrors the scroll position, like a minimal scrollbar
+  function updateThumb(): void {
+    const total = viewport.scrollWidth;
+    const max = maxScroll();
+    const width = (viewport.clientWidth / total) * 100;
+    const left = max > 0 ? (viewport.scrollLeft / max) * (100 - width) : 0;
+    thumb.style.width = `${width}%`;
+    thumb.style.left = `${left}%`;
+  }
+
+  let ticking = false;
+  viewport.addEventListener('scroll', () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      updateThumb();
+      ticking = false;
+    });
+  });
+
+  window.addEventListener('resize', updateThumb);
+  updateThumb();
 </script>

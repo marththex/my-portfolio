@@ -6,8 +6,27 @@ interface Props {
 
 const {
   title,
-  description = "Software Engineer — building thoughtful, performant web experiences."
+  description = "AI engineer building production LLM, retrieval, and multimodal AI systems."
 } = Astro.props;
+
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? 'https://marcuslchong.com').href;
+
+const personSchema = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Marcus Chong',
+  jobTitle: 'Software Engineer, Artificial Intelligence',
+  worksFor: { '@type': 'Organization', name: 'The Boeing Company' },
+  url: 'https://marcuslchong.com',
+  sameAs: [
+    'https://github.com/marththex',
+    'https://linkedin.com/in/marcuslchong',
+  ],
+  alumniOf: [
+    { '@type': 'CollegeOrUniversity', name: 'Georgia Institute of Technology' },
+    { '@type': 'CollegeOrUniversity', name: 'Chapman University' },
+  ],
+});
 ---
 
 <!doctype html>
@@ -17,10 +36,29 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <meta name="theme-color" content="#080808" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href={canonicalUrl} />
     <title>{title}</title>
+
+    <!-- Social sharing -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Marcus Chong" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+
+    <script type="application/ld+json" set:html={personSchema} />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&family=Instrument+Serif:ital@0;1&display=swap"
+    />
   </head>
   <body>
     <nav class="nav">
@@ -29,10 +67,17 @@ const {
         <ul class="nav-links">
           <li><a href="#about">About</a></li>
           <li><a href="#experience">Experience</a></li>
+          <li><a href="#education">Education</a></li>
           <li><a href="#testimonials">Testimonials</a></li>
           <li><a href="#contact" class="nav-cta">Contact</a></li>
         </ul>
-        <button class="nav-hamburger" id="hamburger" aria-label="Toggle menu">
+        <button
+          class="nav-hamburger"
+          id="hamburger"
+          aria-label="Toggle menu"
+          aria-expanded="false"
+          aria-controls="mobileMenu"
+        >
           <span></span><span></span><span></span>
         </button>
       </div>
@@ -42,6 +87,7 @@ const {
       <ul>
         <li><a href="#about" class="mobile-link">About</a></li>
         <li><a href="#experience" class="mobile-link">Experience</a></li>
+        <li><a href="#education" class="mobile-link">Education</a></li>
         <li><a href="#testimonials" class="mobile-link">Testimonials</a></li>
         <li><a href="#contact" class="mobile-link">Contact</a></li>
       </ul>
@@ -248,10 +294,14 @@ const {
   const hamburger = document.getElementById('hamburger');
   const mobileMenu = document.getElementById('mobileMenu');
   hamburger?.addEventListener('click', () => {
-    mobileMenu?.classList.toggle('open');
+    const open = mobileMenu?.classList.toggle('open') ?? false;
+    hamburger.setAttribute('aria-expanded', String(open));
   });
 
   document.querySelectorAll('.mobile-link').forEach(link => {
-    link.addEventListener('click', () => mobileMenu?.classList.remove('open'));
+    link.addEventListener('click', () => {
+      mobileMenu?.classList.remove('open');
+      hamburger?.setAttribute('aria-expanded', 'false');
+    });
   });
 </script>

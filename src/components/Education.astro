@@ -1,0 +1,79 @@
+---
+export interface EducationItem {
+  school: string;
+  degree: string;
+  period: string;
+  location: string;
+}
+
+interface Props {
+  items: EducationItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<section class="section" id="education">
+  <div class="container">
+    <p class="section-label">Education</p>
+    <h2 class="section-title">Where I studied</h2>
+    <div class="edu-grid">
+      {items.map((item) => (
+        <div class="edu-card">
+          <h3 class="edu-degree">{item.degree}</h3>
+          <p class="edu-school">{item.school}</p>
+          <div class="edu-meta">
+            <span>{item.period}</span>
+            <span>{item.location}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .edu-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  .edu-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    padding: 2rem;
+    transition: border-color 0.3s;
+  }
+
+  .edu-card:hover { border-color: var(--accent); }
+
+  .edu-degree {
+    font-size: 1.15rem;
+    color: var(--text);
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+  }
+
+  .edu-school {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--accent);
+    margin-bottom: 1.25rem;
+  }
+
+  .edu-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-3);
+    letter-spacing: 0.05em;
+  }
+
+  @media (max-width: 640px) {
+    .edu-grid { grid-template-columns: 1fr; }
+  }
+</style>

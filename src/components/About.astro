@@ -1,7 +1,12 @@
 ---
+export interface SkillGroup {
+  label: string;
+  items: string[];
+}
+
 interface Props {
   bio: string[];
-  skills: string[];
+  skills: SkillGroup[];
 }
 
 const { bio, skills } = Astro.props;
@@ -12,21 +17,25 @@ const { bio, skills } = Astro.props;
     <p class="section-label">About</p>
     <div class="about-grid">
       <div class="about-text">
-        <h2 class="section-title">A developer who<br/><em>sweats the details</em></h2>
+        <h2 class="section-title">AI that holds up<br/><em>in production</em></h2>
         {bio.map((paragraph) => (
           <p class="about-para">{paragraph}</p>
         ))}
       </div>
       <div class="about-skills">
         <p class="skills-label">Tech I work with</p>
-        <ul class="skills-list">
-          {skills.map((skill) => (
-            <li class="skill-item">
-              <span class="skill-arrow">→</span>
-              {skill}
-            </li>
+        <div class="skills-groups">
+          {skills.map((group) => (
+            <div class="skill-group">
+              <p class="skill-group-label">{group.label}</p>
+              <ul class="skill-chips">
+                {group.items.map((item) => (
+                  <li class="skill-chip">{item}</li>
+                ))}
+              </ul>
+            </div>
           ))}
-        </ul>
+        </div>
       </div>
     </div>
   </div>
@@ -69,32 +78,41 @@ const { bio, skills } = Astro.props;
     margin-bottom: 1.5rem;
   }
 
-  .skills-list {
-    list-style: none;
+  .skills-groups {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 1.5rem;
   }
 
-  .skill-item {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    font-family: var(--font-mono);
-    font-size: 0.85rem;
-    color: var(--text);
-    padding-bottom: 0.75rem;
+  .skill-group:not(:last-child) {
+    padding-bottom: 1.5rem;
     border-bottom: 1px solid var(--border);
   }
 
-  .skill-item:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
+  .skill-group-label {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
   }
 
-  .skill-arrow {
-    color: var(--accent);
-    font-size: 0.75rem;
+  .skill-chips {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .skill-chip {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    padding: 0.25rem 0.6rem;
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    color: var(--text-2);
+    letter-spacing: 0.03em;
   }
 
   @media (max-width: 900px) {
