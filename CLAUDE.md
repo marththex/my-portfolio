@@ -2,7 +2,7 @@
 
 ## Project overview
 
-Personal portfolio site for Marcus Chong, Software Engineer — Artificial Intelligence at Boeing. Built with Astro 6 in server-output mode, self-hosted on a NAS via Docker and Nginx Proxy Manager with a Cloudflare tunnel for remote SSH deploys. The site presents Marcus's bio, work experience, and colleague testimonials through a single-page layout.
+Personal portfolio site for Marcus Chong, Software Engineer — Artificial Intelligence at Boeing. Built with Astro 6 in server-output mode, self-hosted on a NAS via Docker and Nginx Proxy Manager with a Cloudflare tunnel for remote SSH deploys. The site presents Marcus's bio, patents & awards, work experience, education, and colleague testimonials through a single-page layout.
 
 ## Tech stack
 
@@ -14,7 +14,7 @@ Personal portfolio site for Marcus Chong, Software Engineer — Artificial Intel
 | Fonts | Syne (display), Instrument Serif (body), DM Mono (mono) — Google Fonts |
 | Testing | Vitest 3 (smoke tests only) |
 | Linting | ESLint 9 flat config (`eslint.config.js`) |
-| Container | Docker multi-stage → `nginx:alpine` |
+| Container | Docker multi-stage → `node:22-alpine` running the Astro server |
 | Reverse proxy | Nginx Proxy Manager + Cloudflare tunnel |
 
 ## Directory structure
@@ -22,7 +22,7 @@ Personal portfolio site for Marcus Chong, Software Engineer — Artificial Intel
 ```
 my-portfolio/
 ├── src/
-│   ├── components/         # One .astro file per section (Hero, About, Experience, Testimonials, Contact)
+│   ├── components/         # One .astro file per section (Hero, About, Recognition, Experience, Education, Testimonials, Contact)
 │   ├── data/
 │   │   └── testimonials.ts # Testimonial data — single source of truth, imported by component + tests
 │   ├── layouts/
@@ -35,15 +35,15 @@ my-portfolio/
 │   │   └── global.css      # Design system: CSS variables, fonts, base reset
 │   └── tests/
 │       └── smoke.test.ts   # Vitest smoke tests for data integrity
-├── public/                 # Static assets (favicon, profile photo)
+├── public/                 # Static assets (favicons, profile photo, robots.txt, sitemap.xml)
 ├── .github/workflows/
 │   ├── ci.yml              # CI: lint → typecheck → build → test → audit (PR + push to main)
 │   └── deploy.yml          # CD: build + SSH deploy to NAS via Cloudflare tunnel (push to main)
-├── astro.config.mjs        # Astro config — server output, node adapter, CSRF disabled for API
+├── astro.config.mjs        # Astro config — server output, node adapter, site URL
 ├── eslint.config.js        # ESLint 9 flat config
-├── Dockerfile              # Multi-stage: Node build → nginx:alpine serve
+├── Dockerfile              # Multi-stage: Node build → node:22-alpine runs dist/server/entry.mjs
 ├── docker-compose.yml      # NAS deployment config
-└── nginx.conf              # Static file serving config
+└── nginx.conf              # Legacy — not referenced by Dockerfile or compose (proxying is handled by Nginx Proxy Manager)
 ```
 
 ## Dev commands
@@ -67,8 +67,9 @@ npm run preview      # Serve production build locally
 - **Breakpoints**: `768px` is the global mobile breakpoint (nav, footer, container padding in `global.css`); `Hero.astro` stacks to a single column at `900px`. On mobile the hero must not rely on `100vh` + `justify-content: center` — the stacked content is taller than the viewport, and flex centering pushes the overflow above the scroll origin where it can't be scrolled to (clipping the image/badge under the fixed nav). The mobile media query uses `justify-content: flex-start` with explicit top padding instead.
 - **Scrolling**: the document never scrolls — `html`/`body` are locked at viewport height and all scrolling happens in the `.page-scroll` container in `BaseLayout.astro`. This is deliberate: iOS Safari paints document-scrolled content into the status-bar strip above the viewport, where no fixed element, padding, or `env(safe-area-inset-top)` can mask it (it's 0 in portrait browsing). With the document locked, the strip only ever shows the page background. Consequences: scroll listeners must attach to `#pageScroll` and read `scrollTop` (not `window.scrollY`), and `scroll-behavior: smooth` lives on the container. A `theme-color` meta keeps Safari's chrome matched to `--bg`.
 - **Path aliases**: `@components/*`, `@layouts/*`, `@styles/*` are configured in `tsconfig.json`.
-- **Output mode**: `server` (not `static`) because of the `/api/contact` route. The `@astrojs/node` standalone adapter generates a Node.js server in `dist/`.
-- **CSRF**: disabled in `astro.config.mjs` (`checkOrigin: false`) — the contact API handles its own validation.
+- **Output mode**: `server` (not `static`) because of the `/api/contact` route. The `@astrojs/node` standalone adapter generates a Node.js server in `dist/`. The homepage itself is prerendered (`export const prerender = true` in `index.astro`); only the API route is server-rendered.
+- **Contact API security**: Astro's origin check is enabled (the default), so form-content POSTs without a matching `Origin` header get a 403 — curl tests against `/api/contact` must send `-H "Origin: <site url>"`. The route additionally rate-limits per IP (5 per 10 min), short-circuits on the hidden `website` honeypot field, escapes all user input before interpolating into email HTML, and never echoes user content back to the sender-supplied address. Don't relax any of these — the confirmation email goes to an address the requester controls.
+- **SEO files**: `public/sitemap.xml` and `public/robots.txt` are hand-maintained — update `sitemap.xml` if pages are ever added. Privacy rule: no email address, phone number, or resume PDF on the site; all contact goes through the form.
 
 ## CI/CD overview
 
@@ -78,7 +79,7 @@ npm run preview      # Serve production build locally
 
 ## Working with Claude
 
-- **Add a new section** (e.g. Projects): "Create a new `src/components/Projects.astro` section following the same pattern as `Experience.astro`. Add a `projects` data array to `index.astro` frontmatter with fields: title, description, tech, url."
+- **Add a new section**: "Create a new `src/components/<Name>.astro` following the pattern of `Experience.astro` or `Recognition.astro`. Add its data array to `index.astro` frontmatter and, if it should be navigable, add links in `BaseLayout.astro` (desktop nav + mobile menu)."
 - **Update testimonials**: "Edit `src/data/testimonials.ts` — add/remove/update entries. Do not touch `Testimonials.astro` unless the card layout needs to change."
 - **Modify the CI workflow**: "Update `.github/workflows/ci.yml` to [add a step / change the Node version / make audit blocking]."
 - **Update the README**: "Refresh `README.md` — the live URL is `https://marcuslchong.com`, the repo is `marththex/my-portfolio`."

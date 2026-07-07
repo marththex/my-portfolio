@@ -29,13 +29,15 @@ npm run build
 
 Requires Node.js ≥ 22.12.0.
 
+The contact form needs a [Resend](https://resend.com) key: copy `.env.example` to `.env` and set `RESEND_API_KEY`.
+
 ---
 
 ## Project structure
 
 ```
 src/
-├── components/          # Hero, About, Experience, Testimonials, Contact
+├── components/          # Hero, About, Recognition, Experience, Education, Testimonials, Contact
 ├── data/
 │   └── testimonials.ts  # Testimonial entries — single source of truth
 ├── layouts/
